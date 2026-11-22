@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}About – MediRoute AI{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2><i class="bi bi-info-circle me-2"></i>About MediRoute AI</h2>
+    <p class="text-muted mb-0">Framework for Intelligent Report Routing and Physician Assignment in Healthcare</p>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="form-card">
+            <h5 class="text-primary-blue">Project Overview</h5>
+            <p>
+                <strong>MediRoute AI</strong> is an administrative healthcare report-routing research prototype developed for an M.Tech project demonstration.
+                It supports department classification, predefined emergency-indicator screening, and availability-conscious physician assignment using simple local text-processing techniques.
+            </p>
+            <p>
+                The system is designed to illustrate how keyword-based NLP and load-balancing heuristics can assist hospital administrative workflows.
+                It is <strong>not</strong> a clinical decision-support system and must never be used with real patient data in a production clinical setting.
+            </p>
+
+            <h5 class="text-primary-blue mt-4">Key Capabilities</h5>
+            <ul>
+                <li>Weighted keyword matching for department prediction (Cardiology, Neurology, Dermatology, Orthopedics, General Medicine, Pediatrics, Gynecology, Other)</li>
+                <li>Emergency-indicator screening using a fixed list of high-priority phrases</li>
+                <li>Least-pending-load physician assignment among available doctors of the predicted department</li>
+                <li>Full audit trail of every routing and management action</li>
+                <li>Persistent SQLite storage – works offline and on free hosting platforms</li>
+            </ul>
+
+            <h5 class="text-primary-blue mt-4">Technical Approach</h5>
+            <ul>
+                <li>Frontend: HTML + CSS + Bootstrap 5 + vanilla JavaScript</li>
+                <li>Backend: Python Flask</li>
+                <li>Database: SQLite (zero-configuration)</li>
+                <li>NLP: Pure Python weighted keyword scoring (no external LLM APIs)</li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="alert-emergency">
+            <h6 class="fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i>Disclaimer</h6>
+            <p class="mb-0">
+                This system does not diagnose diseases, replace doctors or provide emergency medical care.
+                All demonstration records are synthetic.
+                Emergency screening is basic keyword matching only and is not a substitute for clinical triage.
+                In a real emergency call <strong>112</strong> (India) or your local emergency number.
+            </p>
+        </div>
+
+        <div class="form-card mt-3">
+            <h6 class="fw-bold">Supported Departments</h6>
+            <ul class="mb-0 small">
+                <li>Cardiology</li>
+                <li>Neurology</li>
+                <li>Dermatology</li>
+                <li>Orthopedics</li>
+                <li>General Medicine</li>
+                <li>Pediatrics</li>
+                <li>Gynecology</li>
+                <li>Other</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

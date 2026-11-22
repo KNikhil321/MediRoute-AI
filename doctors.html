@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Doctors – MediRoute AI{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex flex-wrap justify-content-between align-items-center">
+    <div>
+        <h2><i class="bi bi-people me-2"></i>Doctor Management</h2>
+        <p class="text-muted mb-0">View workload and manage availability</p>
+    </div>
+    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addDoctorModal">
+        <i class="bi bi-person-plus me-1"></i> Add Doctor
+    </button>
+</div>
+
+<div class="card-table">
+    <div class="card-header">
+        <i class="bi bi-person-badge me-2"></i> Doctors ({{ doctors|length }})
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Doctor ID</th>
+                    <th>Name</th>
+                    <th>Department</th>
+                    <th>Availability</th>
+                    <th>Pending Reports</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if doctors %}
+                    {% for d in doctors %}
+                    <tr>
+                        <td><code>{{ d.doctor_id }}</code></td>
+                        <td>{{ d.name }}</td>
+                        <td>{{ d.department }}</td>
+                        <td>
+                            {% if d.available %}
+                                <span class="badge bg-success">Available</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Unavailable</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge bg-primary-subtle text-primary-emphasis">{{ d.pending_count }}</span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('toggle_availability', doctor_id=d.doctor_id) }}"
+                               class="btn btn-sm {% if d.available %}btn-outline-warning{% else %}btn-outline-success{% endif %}">
+                                {% if d.available %}
+                                    <i class="bi bi-pause-circle"></i> Set Unavailable
+                                {% else %}
+                                    <i class="bi bi-play-circle"></i> Set Available
+                                {% endif %}
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">No doctors found. Load demo data.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add Doctor Modal -->
+<div class="modal fade" id="addDoctorModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('add_doctor') }}">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Doctor</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Doctor Name <span class="text-danger">*</span></label>
+                        <input type="text" name="name" class="form-control" required maxlength="100" placeholder="Dr. Full Name">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Department <span class="text-danger">*</span></label>
+                        <select name="department" class="form-select" required>
+                            {% for dept in departments %}
+                                <option value="{{ dept }}">{{ dept }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="available" id="availableCheck" checked>
+                        <label class="form-check-label" for="availableCheck">Available for assignment</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Doctor</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

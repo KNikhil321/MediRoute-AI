@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}Dashboard – MediRoute AI{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex flex-wrap justify-content-between align-items-center">
+    <div>
+        <h2><i class="bi bi-speedometer2 me-2"></i>Dashboard</h2>
+        <p class="text-muted mb-0">Intelligent Healthcare Report Routing and Physician Assignment</p>
+    </div>
+    <div class="mt-2 mt-md-0">
+        <a href="{{ url_for('load_demo') }}" class="btn btn-outline-primary btn-sm me-1">
+            <i class="bi bi-database-add"></i> Load Demo Data
+        </a>
+        <a href="{{ url_for('reset_demo') }}" id="resetDemoBtn" class="btn btn-outline-danger btn-sm">
+            <i class="bi bi-arrow-counterclockwise"></i> Reset Demo Data
+        </a>
+    </div>
+</div>
+
+<!-- Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-4 col-xl">
+        <div class="stat-card">
+            <div class="stat-icon bg-icon-blue"><i class="bi bi-file-earmark-medical"></i></div>
+            <div class="stat-value">{{ stats.total }}</div>
+            <div class="stat-label">Total Reports</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl">
+        <div class="stat-card">
+            <div class="stat-icon bg-icon-green"><i class="bi bi-check2-circle"></i></div>
+            <div class="stat-value">{{ stats.processed }}</div>
+            <div class="stat-label">Processed</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl">
+        <div class="stat-card">
+            <div class="stat-icon bg-icon-red"><i class="bi bi-exclamation-triangle"></i></div>
+            <div class="stat-value">{{ stats.emergency }}</div>
+            <div class="stat-label">Emergency Flagged</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl">
+        <div class="stat-card">
+            <div class="stat-icon bg-icon-orange"><i class="bi bi-hourglass-split"></i></div>
+            <div class="stat-value">{{ stats.pending }}</div>
+            <div class="stat-label">Pending</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl">
+        <div class="stat-card">
+            <div class="stat-icon bg-icon-purple"><i class="bi bi-person-check"></i></div>
+            <div class="stat-value">{{ stats.doctors }}</div>
+            <div class="stat-label">Available Doctors</div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Reports -->
+<div class="card-table">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-clock-history me-2"></i>Recent Reports</span>
+        <a href="{{ url_for('reports') }}" class="btn btn-sm btn-outline-primary">View All</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Report ID</th>
+                    <th>Patient</th>
+                    <th>Department</th>
+                    <th>Doctor</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if recent_reports %}
+                    {% for r in recent_reports %}
+                    <tr>
+                        <td><code>{{ r.report_id }}</code></td>
+                        <td>{{ r.patient_name }}</td>
+                        <td>{{ r.department }}</td>
+                        <td>{{ r.doctor_name or '—' }}</td>
+                        <td>
+                            {% if r.priority == 'Emergency' %}
+                                <span class="badge bg-danger">Emergency</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Normal</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if r.status == 'Human Review Required' %}
+                                <span class="badge bg-danger badge-status">{{ r.status }}</span>
+                            {% elif r.status == 'Pending Assignment' %}
+                                <span class="badge bg-warning text-dark badge-status">{{ r.status }}</span>
+                            {% elif r.status == 'Completed' %}
+                                <span class="badge bg-success badge-status">{{ r.status }}</span>
+                            {% elif r.status == 'Under Process' %}
+                                <span class="badge bg-info text-dark badge-status">{{ r.status }}</span>
+                            {% else %}
+                                <span class="badge bg-primary badge-status">{{ r.status }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">No reports yet. Submit a report or load demo data.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

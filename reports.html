@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}All Reports – MediRoute AI{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2><i class="bi bi-clipboard2-pulse me-2"></i>All Reports</h2>
+    <p class="text-muted mb-0">Search, filter and manage healthcare reports</p>
+</div>
+
+<!-- Filters -->
+<div class="form-card mb-4">
+    <form method="GET" class="row g-2 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label">Search (Patient / Report ID)</label>
+            <input type="text" name="q" class="form-control" value="{{ q }}" placeholder="Name or ID">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Department</label>
+            <select name="department" class="form-select">
+                <option value="">All Departments</option>
+                {% for d in departments %}
+                    <option value="{{ d }}" {% if department == d %}selected{% endif %}>{{ d }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-select">
+                <option value="">All Statuses</option>
+                {% for s in statuses %}
+                    <option value="{{ s }}" {% if status == s %}selected{% endif %}>{{ s }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search me-1"></i> Filter</button>
+        </div>
+    </form>
+</div>
+
+<div class="card-table">
+    <div class="card-header">
+        <i class="bi bi-list-ul me-2"></i> Reports ({{ reports|length }})
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Report ID</th>
+                    <th>Patient</th>
+                    <th>Department</th>
+                    <th>Doctor</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if reports %}
+                    {% for r in reports %}
+                    <tr>
+                        <td><code>{{ r.report_id }}</code></td>
+                        <td>{{ r.patient_name }}</td>
+                        <td>{{ r.department }}</td>
+                        <td>{{ r.doctor_name or '—' }}</td>
+                        <td>
+                            {% if r.priority == 'Emergency' %}
+                                <span class="badge bg-danger">Emergency</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Normal</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if r.status == 'Human Review Required' %}
+                                <span class="badge bg-danger badge-status">{{ r.status }}</span>
+                            {% elif r.status == 'Pending Assignment' %}
+                                <span class="badge bg-warning text-dark badge-status">{{ r.status }}</span>
+                            {% elif r.status == 'Completed' %}
+                                <span class="badge bg-success badge-status">{{ r.status }}</span>
+                            {% elif r.status == 'Under Process' %}
+                                <span class="badge bg-info text-dark badge-status">{{ r.status }}</span>
+                            {% else %}
+                                <span class="badge bg-primary badge-status">{{ r.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="small">{{ r.created_at }}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#detailModal{{ r.id }}">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            {% if r.status not in ['Human Review Required', 'Completed'] %}
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">Update</button>
+                                <ul class="dropdown-menu">
+                                    {% if r.status != 'Under Process' %}
+                                    <li><a class="dropdown-item" href="{{ url_for('update_status', report_id=r.report_id, status='Under Process') }}">Mark Under Process</a></li>
+                                    {% endif %}
+                                    <li><a class="dropdown-item" href="{{ url_for('update_status', report_id=r.report_id, status='Completed') }}">Mark Completed</a></li>
+                                    {% if r.status == 'Pending Assignment' %}
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('reassign', report_id=r.report_id) }}">Try Reassign</a></li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    <!-- Detail Modal -->
+                    <div class="modal fade" id="detailModal{{ r.id }}" tabindex="-1">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Report {{ r.report_id }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <table class="table table-sm">
+                                        <tr><th>Patient</th><td>{{ r.patient_name }}</td></tr>
+                                        <tr><th>Department</th><td>{{ r.department }}</td></tr>
+                                        <tr><th>Matched Keywords</th><td>{{ r.matched_keywords or '—' }}</td></tr>
+                                        <tr><th>Priority</th><td>{{ r.priority }}</td></tr>
+                                        <tr><th>Status</th><td>{{ r.status }}</td></tr>
+                                        <tr><th>Doctor</th><td>{{ r.doctor_name or 'Not assigned' }}</td></tr>
+                                        <tr><th>Created</th><td>{{ r.created_at }}</td></tr>
+                                        <tr><th>Description</th><td style="white-space:pre-wrap;">{{ r.description }}</td></tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">No reports found.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
